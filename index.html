@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Çin&#39;de İslamiyet</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Çin Camileri</title>
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        crossorigin=""
+    />
+    <style>
+        html, body {
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Sayfada kaydırma çubuğunu gizler */
+        }
+      #map-title {
+        position: absolute;
+        top: 10px;
+        left: 25%;
+        transform: translateX(-50%);
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 20px;
+        font-weight: bold;
+        z-index: 1000;
+      }
+
+        #map, #wiki {
+            height: 100vh;
+            width: 100vw; /* Harita ve Vikipedi genişliği %100 olarak ayarlandı */
+            box-sizing: border-box;
+            position: relative;
+        }
+        #map {
+            border-bottom: 2px solid #ccc;
+        }
+        #wiki {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #wiki iframe {
+            width: 100%;
+            height: 90%;
+            border: none;
+            display: block;
+        }
+        #externalLinkBtn {
+            margin-top: 10px;
+            padding: 8px 15px;
+            background-color: #0078d7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        #externalLinkBtn:hover {
+            background-color: #005ea2;
+        }
+        @media (min-width: 768px) {
+            body {
+                flex-direction: row;
+            }
+            #map, #wiki {
+                height: 100vh;
+                width: 50vw; /* Harita ve Vikipedi genişliği %50 olarak ayarlandı */
+            }
+            #map {
+                border-right: 2px solid #ccc;
+                border-bottom: none;
+            }
+        }
+    </style>
+</head>
+<body>
+  <div id="map-title">Çin'de İslamiyet / Hazırlayan: M.Enes Sevgi</div>
+
+    <div id="map"></div>
+  
+    <div id="wiki">
+        <iframe
+            id="wikiFrame"
+            src="https://tr.wikipedia.org/wiki/%C3%87in%27de_%C4%B0slam"
+            title="Wikipedia"
+            sandbox="allow-same-origin allow-scripts allow-popups"
+        ></iframe>
+        <a id="externalLinkBtn" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">Haritayı Google Maps'te Aç</a>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        const map = L.map('map').setView([40, 70], 3);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Yapılar: [Yapı Adı, Şehir, Ülke, [lat, lng], açıklama (opsiyonel), özel link (opsiyonel)]
+        const yapilar = [
+            ["Niujie Camii", "Pekin", "Çin", [39.88575953548125, 116.36424262736104], "Çin'in en eski ve büyük camilerinden biri."],
+            ["Ningşia Huy Özerk Bölgesi", "Ningşia, Bölgede 2010 verisine göre 2 milyondan fazla Hui bulunmaktadır. Huylar uzun zaman süren melezleşmenin sonucunda dış görünüşüyle Hanlar ile ayırt edilmez. Ancak Arap, Pers ve Türk kökenli oldukları düşünülmektedir.", "Çin", [38.4912, 106.2309], "Ningşia Huy Özerk Bölgesi müslüman yoğunluğu olan özerk bir bölge."],
+            ["Çinghay", "Qinghai, 2020 verisine göre yaklaşık 950 bin Hui nüfusu mevcuttur.", "Çin", [36.6200, 101.7800], "Müslüman Çinli nüfusun yoğun olduğu bir bölge."],
+            ["Zheng He", "Yunnan, Hem babası Mir Tekin hem de dedesi Keramettin Mekke'ye hac yapmaya gitmiştir.", "Çin", [25.0389, 102.7183], "Müslüman Çinli denizci."],
+            ["An Luşan İsyanı", "Henan, (755'ten 769'a) General An Luşan; Arap, Göktürk ve Sogdluları da etkileyerek kendi saflarına çekti. İsyan sonrası büyük bir kargaşaya, dev kayıplara ve geniş bir sahada yıkıma neden oldu. Tang Hanedanı zayıfladı ve batı Çin üzerindeki hakimiyetini kaybetti.", "Çin", [34.7466, 113.6254], "Tang Hanedanlığı döneminde çıkan önemli bir isyan olayı."],
+            ["Han Kitabı", "Nankin", "Çin", [32.0603, 118.7969], "İslâm ile Konfüçyüsçülüğü sentezleştiren bir dizi Çince İslamî metin."],
+            ["Liu Zhi (alim)", "Nankin, Çinli Sünni Hanefi-Maturidi âlim.Çin entelektüel iklimindeki Müslüman düşüncesini açıklamaya çalışan Han Kitab yazarlarının en önde geleniydi.", "Çin", [32.0603, 118.7969], "Müslüman Çinli alim.", "https://tr.wikipedia.org/wiki/Liu_Zhi_(alim)"],
+            ["Silsile", "Linxia", "Çin", [35.6000, 103.2100], "Çin'deki İslami geçmiş."],
+            ["Linxia", "Linxia", "Çin", [35.6000, 103.2100], "Çin'in küçük Mekkesi unvanını alan yer."]
+        ];
+
+        // Camiler: [Camii Adı, Şehir, Ülke, [lat, lng], açıklama (opsiyonel), özel link (opsiyonel)]
+        const camiler = [
+         
+            ["Altun Camii", "Hoten Şehri", "Çin (Doğu Türkistan)", [37.1102, 79.9190]],
+            ["Urumçi Tatar Camii", "Urumçi, Tatar Camii Urumçi'deki en eski camilerden biri olarak kabul edilir. 19. yüzyılda, 1897'de yerel bağışlarla inşa edilmiştir. 20. yüzyılın başlarında cami, toplam alanı 3.000 metrekare olan bir dini kompleks haline gelmiştir. Binlerce kişiyi ağırlayabilen bu cami, şehrin en büyük camilerinden biridir.", "Çin (Doğu Türkistan)", [43.7915, 87.6151], null, "https://www.advantour.com/china/urumqi/tatar-mosque.htm"],
+            ["Kuça Ulu Camii", "Kuça, Bu dini yapı 15. yüzyıl civarında inşa edilmiştir. Başlangıçta toprak bir yapı olan cami, 17. yüzyılda ahşap bir yapıya dönüştürülmüştür. 1918'de cami çıkan yangında yanmıştır. 1923'te yerel bir kişi, caminin yeniden inşası için bağış toplamış ve 1927'de tamamlanmıştır.", "Çin (Doğu Türkistan)", [41.7208, 82.9348], null, "https://www.visitourchina.com/kucha/attraction/grand-kucha-mosque.html"],
+            ["Sultan Teke Camii", "Gulca", "Çin (Doğu Türkistan)", [43.912455817586185, 81.33260379727193], null, "https://maps.app.goo.gl/odcJxr9JjuHNGhaP6"],
+            ["Kumul Ulu Camii", "Hami Şehri", "Çin (Doğu Türkistan)", [42.8465, 93.5284]],
+           
+            ["Artuş Merkez Camii", "Artuş Şehri", "Çin (Doğu Türkistan)", [39.7120, 76.1750]],
+            // Çin'dekiler
+            ["Qingjing Camii", "Quanzhou, 1009 yılında inşa edilmiş olup Çin'deki en eski camilerden biridir.", "Çin", [24.9031, 118.5839]],
+            ["Iydgâh Camii", "Kaşgar, 15. yüzyılda (tahminen 1442 yılında) Saqsız Mizra tarafından 16,800 m² alana yaptırılmış ve Ana asya'nın en etkinli ve Sincan'nın en büyük camisidir. Ubul Adibek amcası Mizra Wali hatırına 1538 yılında ibadet yerini genişlettirmiştir. 16., 18. ve 19. yüzyılda yapılan birkaç eklemelerle şimdiki durumunu almıştır. Her Cuma günü cami 10,000 ibadet eden müslüman insanları barındırır ve neredeyse 20,000 kişiyi barındırabilecek kapasiteye sahiptir.", "Çin", [39.4754, 76.0649]],
+            ["Dongguan Camii", "Xining, Cami, 14. yüzyılda inşa edilmiş olup yakın zamanda restore edilmiştir.", "Çin", [36.6156, 101.7956]],
+            ["Xiaotaoyuan Camii", "Şanghay, 1917 yılında inşa edilmiş olup Şanghay'ın en büyük camisidir ve Huangpu semtinde yer almaktadır.", "Çin", [31.2200, 121.4500]],
+            ["Songjiang Camii", "Şanghay, Cami 14. yüzyılda inşa edilmiş olup Şanghay'ın en eski camisidir ve Songjiang semtinde yer almaktadır.", "Çin", [31.0000, 121.2200]],
+            ["Fenghuang Camii", "Hangzhou, Cami Çin'in dört büyük camisinden biri olarak bilinmektedir.", "Çin", [30.2547, 120.1550]],
+            ["Huasi Camii", "Linxia, Cami 15. yüzyılda İmparator Chenghua tarafından Ming Hanedanı döneminde inşa edilmiştir.", "Çin", [35.6000, 103.2100]],
+            ["Makao Camii", "Makao, Cami, 1980'lerde inşa edilmiş olup Makao'nun tek camisidir.", "Çin", [22.2000, 113.5500]],
+            ["Altın Camii", "Yarkent, Cami Yarkent Hanlığı döneminde inşa edilmiş olup boyalı tavanları ve avlusunda bulunan şair Amannisa Hanım'ın türbesi ile dikkat çekmektedir.", "Çin", [38.4285, 77.2519]],
+            ["Dongsi Camii", "Pekin, Cami iki kapı, minare, mescit ve kütüphaneden oluşmaktadır. Kemerleri üzerine Kur'an-ı Kerim oyulmuş olan cami, 500'e kadar ibadet edeni ağırlayabilmektedir.", "Çin", [39.9200, 116.4200]],
+            ["Afak Hoca", "Kaşgar,  Afak Hoca Türbesi. Hace Afak (? - 1693/94) Kaşgar'ın güneyinde dini ve siyasi önderidir. Hidayetullah Hoca diye de tanınır.", "Çin", [39.491043, 76.025755]],
+            ["Bukui Camii", "Qiqihar, Cami, 17. yüzyılda Çing Hanedanı döneminde inşa edilmiş olup eyaletin en eski camisidir.", "Çin", [47.3500, 123.9500]],
+            ["Cemaat Camii", "Hotan, Cami, geçici bir süre Hotan Hanlığı'nı yöneten Habibullah Han(1872-1919) tarafından inşa edilmiştir. Cuma Camisi olarak da adlandırılıyor olabilir.", "Çin", [37.1100, 79.9100]],
+            ["Daowai Camii", "Harbin, Cami, 1897 yılında İmparator Guangxu tarafından Çing Hanedanı döneminde inşa edilmiş olup eyaletin en büyük camisidir.", "Çin", [45.7500, 126.6300]],
+            ["Huhhot Ulu Camii", "Huhhot, 1693 yılında inşa edilmiş olup İç Moğolistan'ın en büyük ve en eski camisidir.", "Çin", [40.8200, 111.6600]],
+            ["Jinan Güney Ulu Camii", "Jinan, Cami 13. yüzyılda Yuan Hanedanı döneminde inşa edilmiş olup kentteki en eski camidir.", "Çin", [36.6600, 117.0200]],
+            ["Tongxin Ulu Camii", "Tongxin, Cami Tongxin ilçesinde yer almakta olup bölgenin en eski ve en büyük camisidir.", "Çin", [37.0370, 106.1820]],
+            ["Kowloon Mescit ve İslam Merkezi", "Hong Kong, Kowloon Parkı yakınlarında yer almakta olup yaklaşık 4.000 kişiye hizmet vermektedir.", "Çin", [22.3000, 114.1700]],
+            ["Emin Minaresi ve Camii", "Turfan, Bir Uygur Camisinin minaresidir. 44 metre uzunluğundadır. Çin'deki en yüksek minaredir.", "Çin", [42.8992, 89.1963], null, "https://tr.wikipedia.org/wiki/Emin_Minaresi"],
+           
+           ["Fuzhou Camii", "Fuzhou, Tang Hanedanlığı'nın (618-907) Zhenguan kentinin 2. yılında (628) kurulmuştur. ", "Çin", [26.0800, 119.3000], null, "https://www.islamichinatravel.com/destination-guide/fuzhou-destination-guide/fuzhou-masjid/fuzhou-mosque/?lang=tr"], 
+          
+            ["Huaisheng Camii", "Guangzhou, Sa'd bin Ebû Vakkâs tarafından kent limanında yapılmıştır. Adı önceleri minaresinin fenere benzemesiyle Fener Camii olarak anılmıştır.", "Çin", [23.12308, 113.258525]],
+            ["Taizi Ulu Camii", "Yinchuan", "Çin", [38.0464, 106.3058], null, "https://tr.wikipedia.org/wiki/Lingwu"],
+            ["Lhasa Ulu Camii", "Lhasa, Cami 1716 yılında inşa edilmiştir. 1959'da binanın bugünkü görünümüne göre tadilattan geçmiştir.", "Çin", [29.6508, 91.1367]],
+            ["Jamia Camii", "Hong Kong, Cami 1890 yılında inşa edilmiş", "Çin", [22.2803, 114.1519], null, "https://tr.wikipedia.org/wiki/Camiye_Camii_(Hong_Kong)"],
+            ["Şian Ulu Camii", "Xi'an, Çin'deki en büyük camidir. İlk olarak 742 yılında inşa edilmiştir. Xi'an Müslüman Mahallesi'nde aktif bir ibadet yeri olarak kullanılır. Külliye biçimde yapılmış cami aynı zamanda popüler bir turistik yerdir. Caminin büyük bölümü Ming Hanedanı başlarında inşa edildi. ", "Çin", [34.2633, 108.9364]],
+            ["Linxia Nanguan Mosque", "Linxia, Nanguan Ulu Camii Yuan Hanedanlığı'nın (1206-1269) sonlarında inşa edilmiştir. Defalarca hasar görmüş ve restorasyon görmüştür. Mevcut cami, 1979 yılında 2180 metrekarelik bir alanı kaplayacak şekilde yeniden inşa edilmiştir. ", "Çin", [35.59450979848603, 103.21305744896806], "Çindeki bir cami", "https://maps.app.goo.gl/JD2efsxyjbDCAzZc9"],
+            ["Niujie Mosque", "Pekin, Pekin'de müslümanların buluşma noktası olan Niu caddesinde bulunan özel bir cami.", "Çin", [39.88576076884906, 116.36424377909002], "Çindeki bir cami", "https://maps.app.goo.gl/pr9xupGcwRSNmNPG7"],
+            ["Phoenix Mosque", "Hangzhou, Sadece bir ibadet yeri değil aynı zamanda Çince'ye çevrilmiş birçok İslami dini kitaba ev sahipliği yapan kültürel bir dönüm noktasıdır.", "Çin", [30.24537804389857, 120.17036258996306], "Çindeki bir cami", "https://maps.app.goo.gl/xw7RriCd3QNodC777"],
+            ["Vehb Bin Kebşe Türbesi", "Guangzhou, Tang Hanedanlığı hükümdarı ile görüşmüş ve Hz. Peygamberin(s.a.v.) İslam dinine davetini bildirmiştir. ", "Çin", [23.12308 + 0.00002, 113.258525 + 0.00002], "Çine gelen sahabe", "https://www.ilimvemedeniyet.com/cine-giden-sahabe-vehb-bin-kebse"],
+            ["Pixian Camii", "Çengdu, Caminin girişinde Cuma suresinin 18. ayeti arapça yazılıdır. Meali, Ve mescidler ancak Allah'ındır; Allah'a ortak koşmayın.", "Çin", [30.81280447494102, 103.8834498234732], null, "https://maps.app.goo.gl/Gfxx7Z43VV9rFkUe6"],
+          
+        ["Cami (Güneydoğu Kapısı)", "Dujiangyan City", "Çin", [30.99791471960233, 103.61633145849983], null, "https://maps.app.goo.gl/5dVtdrBxGjs45uSA6"],
+        ["Gulou Mosque", "Çengdu", "Çin", [30.6630934965659, 104.0721009926055], null, "https://maps.app.goo.gl/j1RnaauVhBHKD98e6"],
+        ["Chengdu Huangcheng Mosque", "Çengdu, MS 16. yüzyıldan kalma cami, bir iç mekana ve bir ibadethaneye sahiptir. Sichuan bölgesinin en büyük camilerinden biri ve Chengdu'nun en büyük camisi olarak kabul edilir.", "Çin", [30.656756322487023, 104.06315777658206], null, "https://maps.app.goo.gl/ASCZ4bqKVLoZBvQWA"],
+        ["Laohua Camii", "Linxia, Gansu Eyaleti Linxia Hui Özerk Şehri'nde bulunmaktadır. Cami 1368 yılında inşa edilmiştir.", "Çin", [35.5882286371816, 103.1998974151922], null, "https://maps.app.goo.gl/zqXhvYgtqKN2CfFf6"],
+        ["Great Mosque of Xi'an", "Xi'an, İslamiyetin doğuşundan hemen sonra o yılların imparatorunun izni ile Çin mimarisine uygun olarak inşa edilmiştir. Tamamen ahşaptan inşa edilmiştir ve içindeki büyük tablalarda ahşap üstüne işlenmiş Kuran ve Çince çevirisi mevcuttur.", "Çin", [34.26317605969252, 108.93905886248449], null, "https://maps.app.goo.gl/DKBU1myhP2ZUV2YZ9"],
+        ["Nandouya Camii", "Pekin, Pekin'deki en eski camilerden biri olup şehrin merkezinde yer almaktadır.", "Çin", [39.92812040591283, 116.43257617431892], null, "https://maps.app.goo.gl/CXp5J5LdyTsQey5KA"],
+            ["Mosque", "Sichuan", "Çin", [30.71653380765912, 103.99498199557893], null, "https://maps.app.goo.gl/jpvJrUaeWw5pgvq57"], 
+         ["Xi'an Daxuexi Alley Mosque", "Xi'an, Eski bir cami, 1000 yaşında olduğu söyleniyor. Duvarlarında 30 Cüz Kuran vardır.", "Çin", [34.26223957121335, 108.93618448277552], null, "https://maps.app.goo.gl/F3LHLKM93pvCZ2uV8"], 
+           ["Mosque", "Xi'an, Müslüman Sokak Yemekleri sokağının ortasında yer alıyor. Turistler için giriş ücreti vardır. Ancak namaz kılmak için gelen Müslümanlar için giriş ücreti yok, namaz vaktinde içeri girebilirler.Büyük bir bahçe avlusuna sahip geniş ve eski bir cami. Kadınlar için ayrı bir küçük bölüm de vardır.", "Çin", [34.261851071031785, 108.94176148209097], null, "https://maps.app.goo.gl/EAr2tqUfx6hXH1aN7"], 
+           ["Beiyuanmen", "Xi'an, Müslüman mahallesinin kalbi olduğu yorumu yapılmıştır. ", "Çin", [34.26414583960843, 108.94375254448455], null, "https://maps.app.goo.gl/d28psNEqPVcajZ1A8"], 
+         
+          
+          
+         
+        ];
+
+        // Yeni eklenen Şaansi Camisi
+        camiler.push([
+          "Şaansi Camisi",
+          "Gulca",
+          "Çin",
+          [43.912455817586185, 81.33260379727193],
+          null,
+          "https://maps.app.goo.gl/odcJxr9JjuHNGhaP6"
+        ]);
+
+        let yapiMarkers = [];
+        let camiMarkers = [];
+
+        const wikiFrame = document.getElementById('wikiFrame');
+        const externalLinkBtn = document.getElementById('externalLinkBtn');
+
+        function clearYapiMarkers() {
+            yapiMarkers.forEach(m => map.removeLayer(m));
+            yapiMarkers = [];
+        }
+
+        function clearCamiMarkers() {
+            camiMarkers.forEach(m => map.removeLayer(m));
+            camiMarkers = [];
+        }
+
+        function addYapiMarkers() {
+            clearYapiMarkers();
+            yapilar.forEach(yapi => {
+                const [yapiAdi, sehir, ulke, coords, aciklama, ozelLink] = yapi;
+                const marker = L.marker(coords, {
+                    icon: L.icon({
+                        iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        shadowSize: [41, 41]
+                    })
+                }).addTo(map);
+                let popupContent = `<b>${yapiAdi}</b><br><i>${sehir}</i><br>${ulke}`;
+                if(aciklama) popupContent += `<br>${aciklama}`;
+                popupContent += `<br>Koordinat: ${coords[0].toFixed(5)}° N, ${coords[1].toFixed(5)}° E`;
+                marker.bindPopup(popupContent);
+                marker.on('click', () => {
+                    if (ozelLink) {
+                        // Harita veya wiki linki varsa, iframe yerine buton göster
+                        wikiFrame.style.display = 'none';
+                        externalLinkBtn.style.display = 'inline-block';
+                        externalLinkBtn.href = ozelLink;
+                        externalLinkBtn.textContent = `${yapiAdi} Sayfasını Aç`;
+                    } else {
+                        wikiFrame.style.display = 'block';
+                        externalLinkBtn.style.display = 'none';
+                        showWikiPage(yapiAdi);
+                    }
+                });
+                yapiMarkers.push(marker);
+            });
+        }
+
+        function addCamiMarkers() {
+            clearCamiMarkers();
+            camiler.forEach(cami => {
+                const [camiAdi, sehir, ulke, coords, aciklama, ozelLink] = cami;
+                const marker = L.marker(coords, {
+                    icon: L.icon({
+                        iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        shadowSize: [41, 41]
+                    })
+                }).addTo(map);
+                let popupContent = `<b>${camiAdi}</b><br><i>${sehir}</i><br>${ulke}`;
+                if(aciklama) popupContent += `<br>${aciklama}`;
+                popupContent += `<br>Koordinat: ${coords[0].toFixed(5)}° N, ${coords[1].toFixed(5)}° E`;
+                marker.bindPopup(popupContent);
+                marker.on('click', () => {
+                    if (ozelLink) {
+                        // Google Maps linkleri dış sayfada açılacak, diğerleri iframe'de gösterilecek
+                        const isGoogleMaps = ozelLink.includes("maps.app.goo.gl") || ozelLink.includes("google.com/maps");
+                        if (isGoogleMaps) {
+                            wikiFrame.style.display = 'none';
+                            externalLinkBtn.style.display = 'inline-block';
+                            externalLinkBtn.href = ozelLink;
+                            externalLinkBtn.textContent = `${camiAdi} Haritasını Google Maps'te Aç`;
+                        } else {
+                            wikiFrame.style.display = 'block';
+                            externalLinkBtn.style.display = 'none';
+                            wikiFrame.src = ozelLink;
+                        }
+                    } else {
+                        wikiFrame.style.display = 'block';
+                        externalLinkBtn.style.display = 'none';
+                        showWikiPage(camiAdi);
+                    }
+                });
+                camiMarkers.push(marker);
+            });
+        }
+
+        function showWikiPage(cityName) {
+            // Özel durumlar için sabit linkler
+            const specialPages = {
+                "Liu Zhi (alim)": "https://tr.wikipedia.org/wiki/Liu_Zhi_(alim)",
+                "Jamia Camii": "https://tr.wikipedia.org/wiki/Camiye_Camii_(Hong_Kong)",
+                "Taizi Ulu Camii": "https://tr.wikipedia.org/wiki/Lingwu",
+                "Emin Minaresi": "https://tr.wikipedia.org/wiki/Emin_Minaresi",
+                "Emin Minaresi ve Camii": "https://tr.wikipedia.org/wiki/Emin_Minaresi",
+                "Urumçi Tatar Camii": "https://www.advantour.com/china/urumqi/tatar-mosque.htm"
+            };
+            if(specialPages[cityName]){
+                wikiFrame.src = specialPages[cityName];
+                return;
+            }
+
+            const wikiPage = cityName.replace(/ /g, '_').replace(/\((.*?)\)/g, '').trim();
+            const wikiUrl = `https://tr.wikipedia.org/wiki/${encodeURIComponent(wikiPage)}`;
+            wikiFrame.src = wikiUrl;
+        }
+
+        // İlk yükleme
+        addYapiMarkers();
+        addCamiMarkers();
+    </script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
